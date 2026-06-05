@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import useStore from './store/useStore';
 import Agenda from './pages/Agenda';
 import Clientes from './pages/Clientes';
 import Profissionais from './pages/Profissionais';
@@ -24,31 +25,34 @@ const NAV = [
 ];
 
 const PAGES = {
-  agenda: Agenda,
-  clientes: Clientes,
-  profissionais: Profissionais,
-  comandas: Comandas,
-  financeiro: Financeiro,
-  servicos: Servicos,
-  pacotes: Pacotes,
-  comissoes: Comissoes,
-  relatorios: Relatorios,
-  vendas: Vendas,
-  caixa: Caixa,
-  estoque: Estoque,
-  configuracoes: Configuracoes,
+  agenda: Agenda, clientes: Clientes, profissionais: Profissionais,
+  comandas: Comandas, financeiro: Financeiro, servicos: Servicos,
+  pacotes: Pacotes, comissoes: Comissoes, relatorios: Relatorios,
+  vendas: Vendas, caixa: Caixa, estoque: Estoque, configuracoes: Configuracoes,
 };
 
 export default function App() {
   const [page, setPage] = useState('agenda');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { init, loading } = useStore();
   const Page = PAGES[page] || Agenda;
+
+  useEffect(() => { init(); }, []);
+
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <span className="text-white text-2xl">✦</span>
+        </div>
+        <p className="text-gray-500 text-sm">Carregando sistema...</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans overflow-hidden">
-      {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'w-56' : 'w-16'} bg-white border-r border-gray-100 flex flex-col transition-all duration-300 shrink-0 shadow-sm`}>
-        {/* Logo */}
         <div className="p-4 border-b border-gray-100 flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shrink-0">
             <span className="text-white text-lg">✦</span>
@@ -60,14 +64,12 @@ export default function App() {
             </div>
           )}
         </div>
-
-        {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-2">
           {NAV.map(item => (
             <button
               key={item.id}
               onClick={() => setPage(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-all mx-0 ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-all ${
                 page === item.id
                   ? 'bg-orange-50 text-orange-600 border-r-2 border-orange-500 font-medium'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
@@ -78,8 +80,6 @@ export default function App() {
             </button>
           ))}
         </nav>
-
-        {/* Toggle sidebar */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-50 border-t border-gray-100 flex items-center justify-center"
@@ -87,8 +87,6 @@ export default function App() {
           <span>{sidebarOpen ? '◀' : '▶'}</span>
         </button>
       </aside>
-
-      {/* Main */}
       <main className="flex-1 overflow-y-auto">
         <div className="p-6 max-w-7xl mx-auto">
           <Page />
